@@ -122,3 +122,88 @@ h2 { margin-top: 0; }
 .rulesCard { margin-bottom: 18px; }
 .rulesList { margin: 0; padding-left: 1.4rem; display: grid; gap: 12px; color: var(--muted); }
 .rulesList strong { color: var(--text); }
+
+.matrixMobile { display: none; }
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 20px, 980px);
+    padding-top: 24px;
+  }
+
+  .hero { padding: 18px 0 26px; }
+  .card { padding: 16px; border-radius: 18px; }
+  .matrixHint { font-size: .92rem; }
+
+  .matrixDesktop { display: none; }
+  .matrixMobile { display: block; margin-top: 16px; }
+
+  .mobileDestinationList {
+    display: grid;
+    gap: 12px;
+  }
+
+  .mobileDestination,
+  .mobileTotals {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #11130f;
+  }
+
+  .mobileDestinationHeader,
+  .mobileTotalsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 14px;
+    background: #20241d;
+  }
+
+  .mobileDestinationHeader strong,
+  .mobileTotalsHeader strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mobileDestinationHeader span,
+  .mobileTotalsHeader span {
+    flex: none;
+    color: var(--accent);
+    font-weight: 800;
+    font-size: .88rem;
+  }
+
+  .mobileStakeList { display: grid; }
+
+  .mobileStakeRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .mobileStakeRow:first-child { border-top: 0; }
+  .mobileStakeRow span { min-width: 0; overflow-wrap: anywhere; }
+  .mobileStakeRow strong { flex: none; font-size: 1.05rem; }
+  .mobileStakeRow small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: .72rem;
+  }
+
+  .mobileTotals { margin-top: 14px; }
+  .yourFinalBets { margin-top: 14px; }
+
+  .floating {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    text-align: center;
+  }
+}

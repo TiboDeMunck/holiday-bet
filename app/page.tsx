@@ -139,45 +139,87 @@ export default function Home() {
         {destinations.length === 0 || visibleMatrixParticipants.length === 0 ? (
           <p>Nog geen inzetten.</p>
         ) : (
-          <div className="matrixScroll">
-            <table className="betMatrix">
-              <thead>
-                <tr>
-                  <th>Bestemming</th>
-                  {visibleMatrixParticipants.map((item) => (
-                    <th key={item.id}>
-                      {item.name}
-                      {!item.finalized_at && <small>concept</small>}
-                    </th>
-                  ))}
-                  <th>Totaal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {destinations.map((destination) => (
-                  <tr key={destination.id}>
-                    <th>{destination.name}</th>
-                    {visibleMatrixParticipants.map((item) => {
-                      const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
-                      return <td key={item.id}>{value || "–"}</td>;
-                    })}
-                    <td className="matrixTotal">{destination.total_stake}</td>
+          <>
+            <div className="matrixScroll matrixDesktop">
+              <table className="betMatrix">
+                <thead>
+                  <tr>
+                    <th>Bestemming</th>
+                    {visibleMatrixParticipants.map((item) => (
+                      <th key={item.id}>
+                        {item.name}
+                        {!item.finalized_at && <small>concept</small>}
+                      </th>
+                    ))}
+                    <th>Totaal</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th>Totaal</th>
-                  {visibleMatrixParticipants.map((item) => (
-                    <td key={item.id} className="matrixTotal">
-                      {participantTotals.get(item.id) ?? 0}
-                    </td>
+                </thead>
+                <tbody>
+                  {destinations.map((destination) => (
+                    <tr key={destination.id}>
+                      <th>{destination.name}</th>
+                      {visibleMatrixParticipants.map((item) => {
+                        const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
+                        return <td key={item.id}>{value || "–"}</td>;
+                      })}
+                      <td className="matrixTotal">{destination.total_stake}</td>
+                    </tr>
                   ))}
-                  <td className="matrixGrandTotal">{grandTotal}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th>Totaal</th>
+                    {visibleMatrixParticipants.map((item) => (
+                      <td key={item.id} className="matrixTotal">
+                        {participantTotals.get(item.id) ?? 0}
+                      </td>
+                    ))}
+                    <td className="matrixGrandTotal">{grandTotal}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div className="matrixMobile">
+              <div className="mobileDestinationList">
+                {destinations.map((destination) => (
+                  <article className="mobileDestination" key={destination.id}>
+                    <div className="mobileDestinationHeader">
+                      <strong>{destination.name}</strong>
+                      <span>{destination.total_stake} totaal</span>
+                    </div>
+                    <div className="mobileStakeList">
+                      {visibleMatrixParticipants.map((item) => {
+                        const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
+                        return (
+                          <div className="mobileStakeRow" key={item.id}>
+                            <span>
+                              {item.name}
+                              {!item.finalized_at && <small>concept</small>}
+                            </span>
+                            <strong>{value || "–"}</strong>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mobileTotals">
+                <div className="mobileTotalsHeader">
+                  <strong>Totalen per deelnemer</strong>
+                  <span>{grandTotal} algemeen</span>
+                </div>
+                {visibleMatrixParticipants.map((item) => (
+                  <div className="mobileStakeRow" key={item.id}>
+                    <span>{item.name}</span>
+                    <strong>{participantTotals.get(item.id) ?? 0}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </section>
     );
