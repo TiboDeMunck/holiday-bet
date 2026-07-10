@@ -23,6 +23,20 @@ export async function GET(request: NextRequest) {
     let participant = null;
     let bets: unknown[] = [];
 
+    const [{ data: matrixParticipants, error: matrixParticipantsError }, { data: matrixBets, error: matrixBetsError }] =
+      await Promise.all([
+        supabase
+          .from("participants")
+          .select("id,name,finalized_at")
+          .order("created_at"),
+        supabase
+          .from("bets")
+          .select("participant_id,destination_id,amount"),
+      ]);
+
+    if (matrixParticipantsError) throw matrixParticipantsError;
+    if (matrixBetsError) throw matrixBetsError;
+
     if (participantId && participantId !== "admin") {
       const participantResult = await supabase
         .from("participants")
@@ -59,6 +73,10 @@ export async function GET(request: NextRequest) {
       participant,
       bets,
       destinations: destinations ?? [],
+      matrix: {
+        participants: matrixParticipants ?? [],
+        bets: matrixBets ?? [],
+      },
       game: {
         status: game.status,
         winning_destination_id: game.winning_destination_id,

@@ -21,6 +21,18 @@ type Participant = {
   finalized_at: string | null;
 } | null;
 
+type MatrixParticipant = {
+  id: string;
+  name: string;
+  finalized_at: string | null;
+};
+
+type MatrixBet = {
+  participant_id: string;
+  destination_id: string;
+  amount: number;
+};
+
 type Game = {
   status: "open" | "closed" | "revealed";
   winning_destination_id: string | null;
@@ -45,6 +57,8 @@ export default function Home() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
   const [game, setGame] = useState<Game | null>(null);
+  const [matrixParticipants, setMatrixParticipants] = useState<MatrixParticipant[]>([]);
+  const [matrixBets, setMatrixBets] = useState<MatrixBet[]>([]);
   const [newDestination, setNewDestination] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("");
   const [amount, setAmount] = useState(1);
@@ -62,6 +76,8 @@ export default function Home() {
     setDestinations(data.destinations);
     setBets(data.bets);
     setGame(data.game);
+    setMatrixParticipants(data.matrix?.participants ?? []);
+    setMatrixBets(data.matrix?.bets ?? []);
     setParticipant(data.participant);
     setName(data.participant?.name ?? "");
 
@@ -87,6 +103,32 @@ export default function Home() {
       .filter((bet) => bet.destination_id === game.winning_destination_id)
       .reduce((sum, bet) => sum + bet.amount, 0);
   }, [bets, game]);
+
+  const visibleMatrixParticipants = useMemo(() => {
+    const participantIdsWithBets = new Set(matrixBets.map((bet) => bet.participant_id));
+    return matrixParticipants.filter((item) => participantIdsWithBets.has(item.id));
+  }, [matrixParticipants, matrixBets]);
+
+  const matrixAmount = useMemo(() => {
+    const values = new Map<string, number>();
+    for (const bet of matrixBets) {
+      values.set(`${bet.destination_id}:${bet.participant_id}`, bet.amount);
+    }
+    return values;
+  }, [matrixBets]);
+
+  const participantTotals = useMemo(() => {
+    const values = new Map<string, number>();
+    for (const bet of matrixBets) {
+      values.set(bet.participant_id, (values.get(bet.participant_id) ?? 0) + bet.amount);
+    }
+    return values;
+  }, [matrixBets]);
+
+  const grandTotal = useMemo(
+    () => matrixBets.reduce((sum, bet) => sum + bet.amount, 0),
+    [matrixBets]
+  );
 
   async function post(url: string, body: object) {
     setBusy(true);
@@ -202,17 +244,53 @@ export default function Home() {
           </section>
         )}
 
-        <section className="card">
-          <h2>Totale inzet per bestemming</h2>
-          <div className="overviewList">
-            {destinations.length === 0 && <p>Nog geen bestemmingen.</p>}
-            {destinations.map((destination) => (
-              <div className="overviewRow" key={destination.id}>
-                <span>{destination.name}</span>
-                <strong>{destination.total_stake} adjes</strong>
-              </div>
-            ))}
-          </div>
+        <section className="card matrixCard">
+          <h2>Alle inzetten</h2>
+          <p className="matrixHint">Bestemmingen in de rijen, deelnemers in de kolommen.</p>
+
+          {destinations.length === 0 || visibleMatrixParticipants.length === 0 ? (
+            <p>Nog geen inzetten.</p>
+          ) : (
+            <div className="matrixScroll">
+              <table className="betMatrix">
+                <thead>
+                  <tr>
+                    <th>Bestemming</th>
+                    {visibleMatrixParticipants.map((item) => (
+                      <th key={item.id}>
+                        {item.name}
+                        {!item.finalized_at && <small>concept</small>}
+                      </th>
+                    ))}
+                    <th>Totaal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {destinations.map((destination) => (
+                    <tr key={destination.id}>
+                      <th>{destination.name}</th>
+                      {visibleMatrixParticipants.map((item) => {
+                        const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
+                        return <td key={item.id}>{value || "–"}</td>;
+                      })}
+                      <td className="matrixTotal">{destination.total_stake}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th>Totaal</th>
+                    {visibleMatrixParticipants.map((item) => (
+                      <td key={item.id} className="matrixTotal">
+                        {participantTotals.get(item.id) ?? 0}
+                      </td>
+                    ))}
+                    <td className="matrixGrandTotal">{grandTotal}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
         </section>
 
         <section className="card yourFinalBets">

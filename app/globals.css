@@ -101,3 +101,18 @@ h2 { margin-top: 0; }
 @media (max-width: 560px) {
   .reviewActions { grid-template-columns: 1fr; }
 }
+
+
+.matrixCard { overflow: hidden; }
+.matrixHint { color: var(--muted); margin-top: -6px; }
+.matrixScroll { overflow-x: auto; margin-top: 18px; border: 1px solid var(--border); border-radius: 14px; }
+.betMatrix { width: 100%; min-width: 620px; border-collapse: collapse; background: #11130f; }
+.betMatrix th, .betMatrix td { padding: 13px 14px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: center; white-space: nowrap; }
+.betMatrix th:first-child { position: sticky; left: 0; z-index: 1; text-align: left; background: #171a15; }
+.betMatrix thead th { background: #20241d; }
+.betMatrix thead th:first-child { z-index: 2; }
+.betMatrix th small { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; }
+.betMatrix tr:last-child th, .betMatrix tr:last-child td { border-bottom: 0; }
+.betMatrix th:last-child, .betMatrix td:last-child { border-right: 0; }
+.matrixTotal { font-weight: 800; background: rgba(216,255,103,.07); }
+.matrixGrandTotal { font-weight: 900; color: var(--accent); background: rgba(216,255,103,.12); }
