@@ -50,6 +50,7 @@ Deploy daarna opnieuw.
 ## Beperkingen van deze eerste versie
 
 - Identiteit is gekoppeld aan één browser via localStorage.
+- Deelnemersnamen zijn hoofdletterongevoelig uniek.
 - Iemand kan technisch opnieuw deelnemen via een andere browser of incognitovenster.
 - Er is één vaste poll.
 - Deelnemers kunnen een bestaande inzet aanpassen zolang de poll open is.
@@ -64,3 +65,7 @@ Inzetten worden eerst als concept bewaard. De deelnemer klikt daarna op **Klaar 
 Bij het invoeren van de naam wordt het door Vercel doorgestuurde publieke IP-adres opgeslagen. Dit wordt niet gebruikt als unieke login, omdat meerdere mensen op hetzelfde netwerk hetzelfde publieke IP-adres kunnen hebben. De browser-ID blijft de identificatie voor terugkerende bezoekers.
 
 Bij een bestaande Supabase-database moet je het bijgewerkte `supabase/schema.sql` nogmaals uitvoeren. De toegevoegde kolommen gebruiken `if not exists`.
+
+## Privacy en unieke namen
+
+De applicatie bewaart geen IP-adressen. Namen worden genormaliseerd en mogen maar één keer voorkomen. `Tibo`, `tibo` en ` Tibo ` gelden dus als dezelfde naam.

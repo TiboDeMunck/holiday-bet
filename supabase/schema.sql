@@ -13,6 +13,7 @@ create table if not exists public.participants (
   id uuid primary key default gen_random_uuid(),
   browser_id uuid not null unique,
   name text not null check (char_length(name) between 2 and 40),
+  normalized_name text not null unique,
   created_at timestamptz not null default now()
 );
 
@@ -66,8 +67,22 @@ revoke all on public.destinations from anon, authenticated;
 revoke all on public.bets from anon, authenticated;
 revoke all on public.destination_totals from anon, authenticated;
 
--- Migration for finalized submissions and IP logging.
+-- Migration for finalized submissions and unique participant names.
 alter table public.participants
-  add column if not exists ip_address text null,
-  add column if not exists last_seen_at timestamptz null,
-  add column if not exists finalized_at timestamptz null;
+  add column if not exists finalized_at timestamptz null,
+  add column if not exists normalized_name text null;
+
+update public.participants
+set normalized_name = lower(trim(regexp_replace(name, '[[:space:]]+', ' ', 'g')))
+where normalized_name is null;
+
+alter table public.participants
+  alter column normalized_name set not null;
+
+create unique index if not exists participants_normalized_name_unique
+  on public.participants (normalized_name);
+
+-- Remove the previously added IP-tracking fields.
+alter table public.participants
+  drop column if exists ip_address,
+  drop column if exists last_seen_at;
