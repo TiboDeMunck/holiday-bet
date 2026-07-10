@@ -9,9 +9,9 @@ Een deelnemer kan meerdere bestemmingen kiezen en per bestemming een aantal adje
 Na de onthulling:
 
 - zelf drinken = totale inzet - inzet op de juiste bestemming
-- uitdelen = inzet op de juiste bestemming
+- uitdelen = 2 × inzet op de juiste bestemming
 
-Voorbeeld: Nederland 1, Duitsland 2, Turkije 3. Als Nederland correct is, drink je 5 en deel je 1 uit.
+Voorbeeld: Nederland 1, Duitsland 2, Turkije 3. Als Nederland correct is, drink je 5 en deel je 2 uit.
 
 ## Installeren
 

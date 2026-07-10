@@ -130,6 +130,59 @@ export default function Home() {
     [matrixBets]
   );
 
+  function BettingMatrix() {
+    return (
+      <section className="card matrixCard">
+        <h2>Huidige inzetten</h2>
+        <p className="matrixHint">Bestemmingen in de rijen, deelnemers in de kolommen.</p>
+
+        {destinations.length === 0 || visibleMatrixParticipants.length === 0 ? (
+          <p>Nog geen inzetten.</p>
+        ) : (
+          <div className="matrixScroll">
+            <table className="betMatrix">
+              <thead>
+                <tr>
+                  <th>Bestemming</th>
+                  {visibleMatrixParticipants.map((item) => (
+                    <th key={item.id}>
+                      {item.name}
+                      {!item.finalized_at && <small>concept</small>}
+                    </th>
+                  ))}
+                  <th>Totaal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {destinations.map((destination) => (
+                  <tr key={destination.id}>
+                    <th>{destination.name}</th>
+                    {visibleMatrixParticipants.map((item) => {
+                      const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
+                      return <td key={item.id}>{value || "–"}</td>;
+                    })}
+                    <td className="matrixTotal">{destination.total_stake}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Totaal</th>
+                  {visibleMatrixParticipants.map((item) => (
+                    <td key={item.id} className="matrixTotal">
+                      {participantTotals.get(item.id) ?? 0}
+                    </td>
+                  ))}
+                  <td className="matrixGrandTotal">{grandTotal}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </section>
+    );
+  }
+
   async function post(url: string, body: object) {
     setBusy(true);
     setMessage("");
@@ -195,9 +248,15 @@ export default function Home() {
   if (!participant) {
     return (
       <main className="shell">
-        <section className="card compactCard">
+        <header className="hero homeHero">
           <p className="eyebrow">Vakantiepoll</p>
           <h1>Waar gaan we op reis?</h1>
+        </header>
+
+        <BettingMatrix />
+
+        <section className="card compactCard joinCard">
+          <h2>Doe mee</h2>
           <p>Vul je naam in om bestemmingen toe te voegen en in te zetten.</p>
           <form onSubmit={saveName} className="stack">
             <label>
@@ -234,64 +293,17 @@ export default function Home() {
             <div className="resultGrid">
               <div>
                 <span>Zelf drinken</span>
-                <strong>{totalStake - winningStake} adjes</strong>
+                <strong>{totalStake - winningStake} slokken</strong>
               </div>
               <div>
                 <span>Mag uitdelen</span>
-                <strong>{winningStake} adjes</strong>
+                <strong>{winningStake * 2} slokken</strong>
               </div>
             </div>
           </section>
         )}
 
-        <section className="card matrixCard">
-          <h2>Alle inzetten</h2>
-          <p className="matrixHint">Bestemmingen in de rijen, deelnemers in de kolommen.</p>
-
-          {destinations.length === 0 || visibleMatrixParticipants.length === 0 ? (
-            <p>Nog geen inzetten.</p>
-          ) : (
-            <div className="matrixScroll">
-              <table className="betMatrix">
-                <thead>
-                  <tr>
-                    <th>Bestemming</th>
-                    {visibleMatrixParticipants.map((item) => (
-                      <th key={item.id}>
-                        {item.name}
-                        {!item.finalized_at && <small>concept</small>}
-                      </th>
-                    ))}
-                    <th>Totaal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {destinations.map((destination) => (
-                    <tr key={destination.id}>
-                      <th>{destination.name}</th>
-                      {visibleMatrixParticipants.map((item) => {
-                        const value = matrixAmount.get(`${destination.id}:${item.id}`) ?? 0;
-                        return <td key={item.id}>{value || "–"}</td>;
-                      })}
-                      <td className="matrixTotal">{destination.total_stake}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th>Totaal</th>
-                    {visibleMatrixParticipants.map((item) => (
-                      <td key={item.id} className="matrixTotal">
-                        {participantTotals.get(item.id) ?? 0}
-                      </td>
-                    ))}
-                    <td className="matrixGrandTotal">{grandTotal}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          )}
-        </section>
+        <BettingMatrix />
 
         <section className="card yourFinalBets">
           <h2>Jouw definitieve inzetten</h2>
@@ -324,12 +336,12 @@ export default function Home() {
             {bets.map((bet) => (
               <div className="betRow" key={bet.id}>
                 <span>{bet.destination?.name ?? "Onbekend"}</span>
-                <strong>{bet.amount} adjes</strong>
+                <strong>{bet.amount} slokken</strong>
               </div>
             ))}
             <div className="betRow total">
               <span>Totale inzet</span>
-              <strong>{totalStake} adjes</strong>
+              <strong>{totalStake} slokken</strong>
             </div>
           </div>
 
@@ -351,9 +363,18 @@ export default function Home() {
     <main className="shell">
       <header className="hero">
         <p className="eyebrow">Vakantiepoll</p>
-        <h1>Waar gaan we op reis?</h1>
-        <p>Welkom, {participant.name}. Je drinkt enkel de inzet op je foute bestemmingen.</p>
+        <h1>Zet je slokken in</h1>
+        <p>Welkom, {participant.name}.</p>
       </header>
+
+      <section className="card rulesCard">
+        <h2>De regels</h2>
+        <ol className="rulesList">
+          <li><strong>Zet slokken in</strong> op één of meerdere bestemmingen.</li>
+          <li><strong>Drink de slokken</strong> die je op foute bestemmingen hebt ingezet.</li>
+          <li><strong>Deel dubbel uit</strong> voor de slokken die je op de juiste bestemming hebt ingezet.</li>
+        </ol>
+      </section>
 
       <section className="grid">
         <div className="card">
@@ -373,7 +394,7 @@ export default function Home() {
                 disabled={game.status !== "open"}
               >
                 <span>{destination.name}</span>
-                <small>{destination.total_stake} adjes ingezet</small>
+                <small>{destination.total_stake} slokken ingezet</small>
               </button>
             ))}
           </div>
@@ -415,7 +436,7 @@ export default function Home() {
           {game.status === "open" && (
             <form onSubmit={placeBet} className="stack">
               <label>
-                Aantal adjes
+                Aantal slokken
                 <input
                   type="number"
                   min={1}
