@@ -38,9 +38,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Vul eerst je naam in." }, { status: 401 });
     }
 
-    if (participant.finalized_at) {
+    const { data: existingBet, error: existingBetError } = await supabase
+      .from("bets")
+      .select("id,amount")
+      .eq("participant_id", participant.id)
+      .eq("destination_id", destinationId)
+      .maybeSingle();
+
+    if (existingBetError) throw existingBetError;
+
+    if (existingBet && numericAmount <= existingBet.amount) {
       return NextResponse.json(
-        { error: "Je inzetten zijn al definitief opgeslagen." },
+        {
+          error: `Je vorige inzet was ${existingBet.amount}. Je kan die alleen verhogen.`,
+        },
         { status: 409 }
       );
     }
@@ -55,10 +66,19 @@ export async function POST(request: Request) {
         },
         { onConflict: "participant_id,destination_id" }
       )
-      .select("id")
+      .select("id,amount")
       .single();
 
     if (error) throw error;
+
+    if (participant.finalized_at) {
+      const { error: resetError } = await supabase
+        .from("participants")
+        .update({ finalized_at: null })
+        .eq("id", participant.id);
+      if (resetError) throw resetError;
+    }
+
     return NextResponse.json({ bet: data });
   } catch (error) {
     return NextResponse.json(

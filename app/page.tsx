@@ -249,7 +249,10 @@ export default function Home() {
   async function saveName(event: FormEvent) {
     event.preventDefault();
     const data = await post("/api/participant", { participantId, name });
-    if (data) setMessage("Naam opgeslagen.");
+    if (data) {
+      setScreen("betting");
+      setMessage(data.returning ? "Welkom terug. Je kan je inzetten alleen verhogen." : "Naam opgeslagen.");
+    }
   }
 
   async function addDestination(event: FormEvent) {
@@ -295,11 +298,10 @@ export default function Home() {
           <h1>Waar gaan we op reis?</h1>
         </header>
 
-        <BettingMatrix />
-
-        <section className="card compactCard joinCard">
+        <section className="card compactCard joinCard joinCardFirst">
           <h2>Doe mee</h2>
           <p>Vul je naam in om bestemmingen toe te voegen en in te zetten.</p>
+          <p className="smallNote">Al eerder meegedaan? Gebruik dezelfde naam. Je bestaande inzetten blijven staan en kunnen alleen verhoogd worden.</p>
           <form onSubmit={saveName} className="stack">
             <label>
               Jouw naam
@@ -315,6 +317,8 @@ export default function Home() {
           </form>
           {message && <p className="message">{message}</p>}
         </section>
+
+        <BettingMatrix />
       </main>
     );
   }
@@ -325,7 +329,7 @@ export default function Home() {
         <header className="hero">
           <p className="eyebrow">Huidige stand</p>
           <h1>Waar gaan we op reis?</h1>
-          <p>Je inzetten zijn opgeslagen en kunnen niet meer gewijzigd worden.</p>
+          <p>Je inzetten zijn opgeslagen. Je kan later terugkomen en alleen een hogere inzet toevoegen.</p>
         </header>
 
         {game.status === "revealed" && (
@@ -348,7 +352,17 @@ export default function Home() {
         <BettingMatrix />
 
         <section className="card yourFinalBets">
-          <h2>Jouw definitieve inzetten</h2>
+          <div className="sectionHeadingWithAction">
+            <h2>Jouw definitieve inzetten</h2>
+            <button
+              className="secondary compactAction"
+              onClick={() => setScreen("betting")}
+              disabled={game.status !== "open"}
+            >
+              Aanpassen
+            </button>
+          </div>
+          <p className="smallNote">Je kan alleen nieuwe inzetten toevoegen of bestaande inzetten verhogen.</p>
           {bets.map((bet) => (
             <div className="betRow" key={bet.id}>
               <span>{bet.destination?.name ?? "Onbekend"}</span>
@@ -372,7 +386,7 @@ export default function Home() {
         <section className="card compactCard">
           <p className="eyebrow">Controle</p>
           <h1>Klopt je inzet?</h1>
-          <p>Na definitief opslaan kan je niets meer aanpassen.</p>
+          <p>Na opslaan kan je bestaande bedragen niet verlagen. Later verhogen blijft mogelijk.</p>
 
           <div className="betList reviewList">
             {bets.map((bet) => (
@@ -432,7 +446,11 @@ export default function Home() {
                     : "destination"
                 }
                 key={destination.id}
-                onClick={() => setSelectedDestination(destination.id)}
+                onClick={() => {
+                  setSelectedDestination(destination.id);
+                  const existing = bets.find((bet) => bet.destination_id === destination.id);
+                  setAmount(existing ? Math.min(existing.amount + 1, 20) : 1);
+                }}
                 disabled={game.status !== "open"}
               >
                 <span>{destination.name}</span>
@@ -492,7 +510,7 @@ export default function Home() {
                 Inzetten op geselecteerde bestemming
               </button>
               <small>
-                Nogmaals inzetten op dezelfde bestemming vervangt je vorige inzet.
+                Een bestaande inzet kan alleen verhoogd worden. Verlagen of verwijderen kan niet.
               </small>
             </form>
           )}

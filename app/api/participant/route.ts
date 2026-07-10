@@ -13,19 +13,31 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    const { data: existingName, error: lookupError } = await supabase
+    const { data: existingByName, error: nameLookupError } = await supabase
       .from("participants")
-      .select("browser_id")
+      .select("id,name,finalized_at,browser_id")
       .eq("normalized_name", normalizedName)
       .maybeSingle();
 
-    if (lookupError) throw lookupError;
+    if (nameLookupError) throw nameLookupError;
 
-    if (existingName && existingName.browser_id !== participantId) {
-      return NextResponse.json(
-        { error: "Deze naam is al in gebruik. Kies een andere naam." },
-        { status: 409 }
-      );
+    if (existingByName) {
+      const { data, error } = await supabase
+        .from("participants")
+        .update({ browser_id: participantId })
+        .eq("id", existingByName.id)
+        .select("id,name,finalized_at")
+        .single();
+
+      if (error?.code === "23505") {
+        return NextResponse.json(
+          { error: "Deze browser is al gekoppeld aan een andere deelnemer." },
+          { status: 409 }
+        );
+      }
+      if (error) throw error;
+
+      return NextResponse.json({ participant: data, returning: true });
     }
 
     const { data, error } = await supabase
@@ -41,15 +53,8 @@ export async function POST(request: NextRequest) {
       .select("id,name,finalized_at")
       .single();
 
-    if (error?.code === "23505") {
-      return NextResponse.json(
-        { error: "Deze naam is al in gebruik. Kies een andere naam." },
-        { status: 409 }
-      );
-    }
-
     if (error) throw error;
-    return NextResponse.json({ participant: data });
+    return NextResponse.json({ participant: data, returning: false });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Serverfout." },

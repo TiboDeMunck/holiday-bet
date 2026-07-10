@@ -32,13 +32,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Vul eerst je naam in." }, { status: 401 });
     }
 
-    if (participant.finalized_at) {
-      return NextResponse.json(
-        { error: "Je inzetten zijn al definitief opgeslagen." },
-        { status: 409 }
-      );
-    }
-
     const { data, error } = await supabase
       .from("destinations")
       .insert({
