@@ -65,3 +65,9 @@ revoke all on public.participants from anon, authenticated;
 revoke all on public.destinations from anon, authenticated;
 revoke all on public.bets from anon, authenticated;
 revoke all on public.destination_totals from anon, authenticated;
+
+-- Migration for finalized submissions and IP logging.
+alter table public.participants
+  add column if not exists ip_address text null,
+  add column if not exists last_seen_at timestamptz null,
+  add column if not exists finalized_at timestamptz null;

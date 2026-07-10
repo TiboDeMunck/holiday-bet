@@ -1,7 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-export async function POST(request: Request) {
+function getClientIp(request: NextRequest) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]?.trim() || null;
+  return request.headers.get("x-real-ip")?.trim() || null;
+}
+
+export async function POST(request: NextRequest) {
   try {
     const { participantId, name } = await request.json();
     const cleanName = String(name ?? "").trim();
@@ -14,10 +20,15 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("participants")
       .upsert(
-        { browser_id: participantId, name: cleanName },
+        {
+          browser_id: participantId,
+          name: cleanName,
+          ip_address: getClientIp(request),
+          last_seen_at: new Date().toISOString(),
+        },
         { onConflict: "browser_id" }
       )
-      .select("id,name")
+      .select("id,name,finalized_at")
       .single();
 
     if (error) throw error;

@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     if (participantId && participantId !== "admin") {
       const participantResult = await supabase
         .from("participants")
-        .select("id,name")
+        .select("id,name,finalized_at")
         .eq("browser_id", participantId)
         .maybeSingle();
 

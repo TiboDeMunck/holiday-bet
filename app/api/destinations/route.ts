@@ -24,12 +24,19 @@ export async function POST(request: Request) {
 
     const { data: participant } = await supabase
       .from("participants")
-      .select("id")
+      .select("id,finalized_at")
       .eq("browser_id", participantId)
       .single();
 
     if (!participant) {
       return NextResponse.json({ error: "Vul eerst je naam in." }, { status: 401 });
+    }
+
+    if (participant.finalized_at) {
+      return NextResponse.json(
+        { error: "Je inzetten zijn al definitief opgeslagen." },
+        { status: 409 }
+      );
     }
 
     const { data, error } = await supabase

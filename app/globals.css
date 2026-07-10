@@ -88,3 +88,16 @@ h2 { margin-top: 0; }
   .inlineForm { grid-template-columns: 1fr; }
   .destination { align-items: flex-start; gap: 8px; flex-direction: column; }
 }
+
+.compactCard { max-width: 680px; margin: 30px auto 0; }
+.finishButton { width: 100%; margin-top: 18px; }
+.reviewList { margin-top: 28px; }
+.reviewActions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.overviewList { display: grid; gap: 10px; margin-top: 18px; }
+.overviewRow { display: flex; justify-content: space-between; gap: 20px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+.overviewRow:last-child { border-bottom: 0; }
+.yourFinalBets { margin-top: 18px; }
+
+@media (max-width: 560px) {
+  .reviewActions { grid-template-columns: 1fr; }
+}

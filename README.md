@@ -54,3 +54,13 @@ Deploy daarna opnieuw.
 - Er is één vaste poll.
 - Deelnemers kunnen een bestaande inzet aanpassen zolang de poll open is.
 - Er is nog geen verwijderknop voor inzetten.
+
+## Definitief opslaan
+
+Inzetten worden eerst als concept bewaard. De deelnemer klikt daarna op **Klaar met inzetten**, controleert alles en kiest **Definitief opslaan**. Vanaf dat moment zijn nieuwe of gewijzigde inzetten geblokkeerd en opent de site voortaan meteen het overzicht.
+
+## IP-adres
+
+Bij het invoeren van de naam wordt het door Vercel doorgestuurde publieke IP-adres opgeslagen. Dit wordt niet gebruikt als unieke login, omdat meerdere mensen op hetzelfde netwerk hetzelfde publieke IP-adres kunnen hebben. De browser-ID blijft de identificatie voor terugkerende bezoekers.
+
+Bij een bestaande Supabase-database moet je het bijgewerkte `supabase/schema.sql` nogmaals uitvoeren. De toegevoegde kolommen gebruiken `if not exists`.
